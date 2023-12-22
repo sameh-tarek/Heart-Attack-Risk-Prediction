@@ -1,10 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 from six import StringIO
 from IPython.display import Image
 import pydotplus
@@ -51,15 +53,17 @@ for col in numeric_columns:
 
 
 # preprocessing
-data.dropna(inplace=True)
-print(data)
+print("\n************ preprocessing ************")
+print("check missing values:\n", data.isnull().sum(), '\n')
+# data.dropna(inplace=True)
 le = LabelEncoder()
 data['Sex'] = le.fit_transform(data['Sex'])
 data['Diet'] = le.fit_transform(data['Diet'])
 data['Blood Pressure'] = data['Blood Pressure'].apply(lambda x: float(x.split('/')[0]) if '/' in str(x) else float(x))
-print(data['Diet'])
-print(data['Sex'])
-print(data['Blood Pressure'])
+print("After preprocessing:\n")
+print(data['Diet'], "\n")
+print(data['Sex'], "\n")
+print(data['Blood Pressure'], "\n")
 
 
 # Visualize Numeric Columns again
@@ -94,13 +98,14 @@ for col in numeric_columns:
 x = data.drop('Heart Attack Risk', axis=1)
 y = data['Heart Attack Risk']
 
-# decision tree
+# decision tree classification
+print("\n**************** Decision tree classification ******************")
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 dtree = DecisionTreeClassifier(criterion='entropy') # gini or entropy
 dtree.fit(x_train, y_train)
 pred = dtree.predict(x_test)
 accuracy = accuracy_score(y_test, pred)
-print("Accuracy:", accuracy)
+print("Accuracy: ", accuracy)
 
 # decision tree Visualization
 dot_data = StringIO()
@@ -108,3 +113,38 @@ export_graphviz(dtree, out_file=dot_data, filled=True, rounded=True, feature_nam
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
 # graph.write_png('images/decisionTree/tree.png')
 Image(graph.create_png())
+
+# KNN classification
+print("\n************ KNN classification *************")
+model = KNeighborsClassifier(n_neighbors=3)
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+matrix = confusion_matrix(y_test, pred)
+print("confusion_matrix:\n", matrix)
+
+# accuracy score
+acc = accuracy_score(y_test, pred)
+print("accuracy: ", acc)
+# precision
+pre = precision_score(y_test, pred)
+# recall
+rec = recall_score(y_test, pred)
+print("recall: ", rec)
+# fi-measure
+f1 = f1_score(y_test, pred)
+print("f1-measure: ", f1)
+
+
+# SVM classification
+print("\n*********** SVM Classification *************")
+SVM_Model = SVC(gamma='auto')
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+matrix = confusion_matrix(y_test, pred)
+print("confusion_matrix:\n", matrix)
+# SVM accuracy
+acc = accuracy_score(y_test, pred)
+print("SVM Accuracy: ", acc)
+
+
+
