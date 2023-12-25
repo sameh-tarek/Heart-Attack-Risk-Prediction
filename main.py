@@ -110,14 +110,14 @@ print("Accuracy: ", accuracy)
 
 # decision tree Visualization
 dot_data = StringIO()
-export_graphviz(dtree, out_file=dot_data, filled=True, rounded=True, feature_names=x.columns, class_names=['0', '1', '2'])
+export_graphviz(dtree, out_file=dot_data, filled=True, rounded=True, feature_names=x.columns, class_names=['0', '1'])
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
 graph.write_png('images/decisionTree/tree.png')
 Image(graph.create_png())
 
 # KNN classification
 print("\n************ KNN classification *************")
-knn_model = KNeighborsClassifier(n_neighbors=3)
+knn_model = KNeighborsClassifier(n_neighbors=5)
 knn_model.fit(x_train, y_train)
 knn_pred = knn_model.predict(x_test)
 knn_matrix = confusion_matrix(y_test, knn_pred)
